@@ -26,7 +26,8 @@ export default {
 				foreground: 'hsl(var(--foreground))',
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
-					foreground: 'hsl(var(--primary-foreground))'
+					foreground: 'hsl(var(--primary-foreground))',
+					glow: 'hsl(var(--primary-glow))'
 				},
 				secondary: {
 					DEFAULT: 'hsl(var(--secondary))',
@@ -51,6 +52,13 @@ export default {
 				card: {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
+				},
+				game: {
+					health: 'hsl(var(--game-health))',
+					mana: 'hsl(var(--game-mana))',
+					xp: 'hsl(var(--game-xp))',
+					enemy: 'hsl(var(--game-enemy))',
+					platform: 'hsl(var(--game-platform))'
 				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',

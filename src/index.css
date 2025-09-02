@@ -2,39 +2,80 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
+/* Dopamine Rush Platformer Design System 
+Vibrant gaming colors and effects for maximum dopamine response
 */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Dark gaming background with neon accents */
+    --background: 235 25% 8%;
+    --foreground: 280 15% 95%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    /* Card surfaces with slight glow */
+    --card: 235 20% 12%;
+    --card-foreground: 280 15% 95%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 235 20% 12%;
+    --popover-foreground: 280 15% 95%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Electric purple primary for energy */
+    --primary: 280 90% 65%;
+    --primary-foreground: 280 15% 95%;
+    --primary-glow: 280 95% 75%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Neon cyan secondary */
+    --secondary: 180 100% 50%;
+    --secondary-foreground: 235 25% 8%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Darker muted tones */
+    --muted: 235 15% 20%;
+    --muted-foreground: 280 10% 70%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Bright accent for highlights */
+    --accent: 45 100% 65%;
+    --accent-foreground: 235 25% 8%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* Danger red with intensity */
+    --destructive: 0 85% 60%;
+    --destructive-foreground: 280 15% 95%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    /* Subtle borders */
+    --border: 235 15% 25%;
+    --input: 235 15% 25%;
+    --ring: 280 90% 65%;
+
+    /* Gaming specific colors */
+    --game-health: 120 100% 50%;
+    --game-mana: 220 100% 60%;
+    --game-xp: 45 100% 65%;
+    --game-enemy: 0 85% 60%;
+    --game-platform: 280 20% 30%;
+
+    /* Gradients for effects */
+    --gradient-primary: linear-gradient(135deg, hsl(280 90% 65%), hsl(280 95% 75%));
+    --gradient-secondary: linear-gradient(135deg, hsl(180 100% 50%), hsl(200 100% 60%));
+    --gradient-accent: linear-gradient(135deg, hsl(45 100% 65%), hsl(35 100% 70%));
+    --gradient-background: linear-gradient(135deg, hsl(235 25% 8%), hsl(235 30% 12%));
+    --gradient-rainbow: linear-gradient(90deg, 
+      hsl(280 90% 65%), 
+      hsl(220 100% 60%), 
+      hsl(180 100% 50%), 
+      hsl(120 100% 50%), 
+      hsl(45 100% 65%), 
+      hsl(0 85% 60%)
+    );
+
+    /* Glow effects */
+    --glow-primary: 0 0 20px hsl(280 90% 65% / 0.5);
+    --glow-secondary: 0 0 20px hsl(180 100% 50% / 0.5);
+    --glow-accent: 0 0 20px hsl(45 100% 65% / 0.5);
+    --glow-intense: 0 0 40px hsl(280 90% 65% / 0.8);
+
+    /* Animation durations */
+    --transition-fast: 0.15s ease-out;
+    --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
     --radius: 0.5rem;
 
@@ -100,6 +141,93 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground overflow-hidden;
+    background: var(--gradient-background);
+  }
+
+  /* Game-specific animations */
+  @keyframes levelUp {
+    0% { transform: scale(1) rotate(0deg); opacity: 1; }
+    50% { transform: scale(1.2) rotate(180deg); opacity: 0.8; }
+    100% { transform: scale(1) rotate(360deg); opacity: 1; }
+  }
+
+  @keyframes pulseGlow {
+    0%, 100% { box-shadow: var(--glow-primary); }
+    50% { box-shadow: var(--glow-intense); }
+  }
+
+  @keyframes slideInUp {
+    from { transform: translateY(100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  @keyframes slideInDown {
+    from { transform: translateY(-100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  @keyframes floatUp {
+    from { transform: translateY(0); opacity: 1; }
+    to { transform: translateY(-50px); opacity: 0; }
+  }
+
+  @keyframes rainbow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+}
+
+@layer components {
+  .game-button {
+    @apply bg-primary text-primary-foreground px-6 py-3 rounded-lg font-bold;
+    @apply transition-all duration-300 hover:scale-105;
+    box-shadow: var(--glow-primary);
+  }
+
+  .game-button:hover {
+    box-shadow: var(--glow-intense);
+  }
+
+  .health-bar {
+    background: linear-gradient(90deg, hsl(var(--game-health)), hsl(var(--game-health) / 0.8));
+  }
+
+  .mana-bar {
+    background: linear-gradient(90deg, hsl(var(--game-mana)), hsl(var(--game-mana) / 0.8));
+  }
+
+  .xp-bar {
+    background: linear-gradient(90deg, hsl(var(--game-xp)), hsl(var(--game-xp) / 0.8));
+  }
+
+  .level-up-effect {
+    animation: levelUp 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+
+  .pulse-glow {
+    animation: pulseGlow 2s infinite;
+  }
+
+  .float-up {
+    animation: floatUp 1s ease-out forwards;
+  }
+
+  .slide-in-up {
+    animation: slideInUp 0.5s ease-out;
+  }
+
+  .slide-in-down {
+    animation: slideInDown 0.5s ease-out;
+  }
+
+  .rainbow-text {
+    background: var(--gradient-rainbow);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: rainbow 3s ease infinite;
   }
 }
