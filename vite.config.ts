@@ -15,6 +15,9 @@ export default defineConfig(({ mode }) => ({
     componentTagger(),
   ].filter(Boolean),
   base: '/dopamine-rush-play/',
+  build: {
+    outDir: 'docs'
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
