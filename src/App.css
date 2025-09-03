@@ -40,3 +40,121 @@
 .read-the-docs {
   color: #888;
 }
+
+/* Game-specific animations and effects */
+@keyframes rainbow-text {
+  0% { color: #ff0080; }
+  14% { color: #ff8000; }
+  28% { color: #ffff00; }
+  42% { color: #80ff00; }
+  57% { color: #00ff80; }
+  71% { color: #0080ff; }
+  85% { color: #8000ff; }
+  100% { color: #ff0080; }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { 
+    text-shadow: 0 0 20px currentColor, 0 0 40px currentColor;
+  }
+  50% { 
+    text-shadow: 0 0 40px currentColor, 0 0 80px currentColor, 0 0 120px currentColor;
+  }
+}
+
+@keyframes game-button {
+  0% { 
+    box-shadow: 0 0 20px #8b5cf6, 0 0 40px #8b5cf6;
+  }
+  50% { 
+    box-shadow: 0 0 40px #8b5cf6, 0 0 80px #8b5cf6, 0 0 120px #8b5cf6;
+  }
+  100% { 
+    box-shadow: 0 0 20px #8b5cf6, 0 0 40px #8b5cf6;
+  }
+}
+
+@keyframes level-up-effect {
+  0% { 
+    transform: scale(0.8) rotate(-5deg);
+    opacity: 0;
+  }
+  50% { 
+    transform: scale(1.1) rotate(2deg);
+    opacity: 1;
+  }
+  100% { 
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes health-bar {
+  0% { background: linear-gradient(90deg, #10b981, #34d399); }
+  50% { background: linear-gradient(90deg, #34d399, #6ee7b7); }
+  100% { background: linear-gradient(90deg, #10b981, #34d399); }
+}
+
+@keyframes xp-bar {
+  0% { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+  50% { background: linear-gradient(90deg, #a78bfa, #c4b5fd); }
+  100% { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+}
+
+@keyframes floating-particles {
+  0% { 
+    transform: translateY(0px) rotate(0deg);
+    opacity: 1;
+  }
+  100% { 
+    transform: translateY(-100px) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* Apply animations to elements */
+.rainbow-text {
+  animation: rainbow-text 3s linear infinite;
+}
+
+.pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.game-button {
+  animation: game-button 2s ease-in-out infinite;
+}
+
+.level-up-effect {
+  animation: level-up-effect 0.6s ease-out;
+}
+
+.health-bar {
+  animation: health-bar 2s ease-in-out infinite;
+}
+
+.xp-bar {
+  animation: xp-bar 2s ease-in-out infinite;
+}
+
+/* Enhanced hover effects */
+.game-button:hover {
+  transform: scale(1.05) translateY(-2px);
+  box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);
+}
+
+/* Particle effects */
+.floating-particle {
+  animation: floating-particles 3s ease-out forwards;
+}
+
+/* Screen shake effect */
+@keyframes screen-shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
+  20%, 40%, 60%, 80% { transform: translateX(2px); }
+}
+
+.screen-shake {
+  animation: screen-shake 0.1s ease-in-out;
+}

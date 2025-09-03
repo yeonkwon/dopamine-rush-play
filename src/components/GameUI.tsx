@@ -32,10 +32,10 @@ export const GameUI = ({ gameState, onSkillSelect }: GameUIProps) => {
             <div className="space-y-3">
               {/* Level and Score */}
               <div className="flex justify-between items-center">
-                <div className="text-2xl font-bold text-primary rainbow-text">
+                <div className="text-2xl font-bold text-primary rainbow-text animate-pulse">
                   Level {gameState.level}
                 </div>
-                <div className="text-lg font-semibold text-accent">
+                <div className="text-lg font-semibold text-accent animate-bounce">
                   Score: {gameState.score.toLocaleString()}
                 </div>
               </div>

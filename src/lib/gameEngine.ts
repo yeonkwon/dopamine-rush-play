@@ -90,6 +90,12 @@ export class GameEngine {
   private gravity = 0.8;
   private enemySpawnTimer = 0;
   private enemySpawnInterval = 2000; // 2 seconds
+  
+  // Visual effects
+  private screenShake = 0;
+  private screenShakeTimer = 0;
+  private screenShakeOffsetX = 0;
+  private screenShakeOffsetY = 0;
 
   constructor(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
     this.canvas = canvas;
@@ -175,6 +181,7 @@ export class GameEngine {
     this.updateParticles(deltaTime);
     this.checkCollisions();
     this.spawnEnemies(deltaTime);
+    this.updateScreenShake(deltaTime);
     
     // Update game state
     this.gameState.health = this.player.health;
@@ -320,10 +327,29 @@ export class GameEngine {
         continue;
       }
 
+      // Update position
       particle.x += particle.velocityX;
       particle.y += particle.velocityY;
-      particle.velocityY += 0.2; // Gravity for particles
+      
+      // Apply different physics based on particle type
+      if (particle.type === 'death') {
+        particle.velocityY += 0.1; // Light gravity for death particles
+        particle.velocityX *= 0.98; // Air resistance
+      } else if (particle.type === 'levelup') {
+        particle.velocityY -= 0.05; // Float upward
+        particle.velocityX *= 0.99; // Very light air resistance
+      } else {
+        particle.velocityY += 0.2; // Normal gravity for regular particles
+      }
+      
+      // Update alpha with fade effect
       particle.alpha = particle.life / particle.maxLife;
+      
+      // Add some randomness to movement
+      if (particle.type === 'death') {
+        particle.velocityX += (Math.random() - 0.5) * 0.1;
+        particle.velocityY += (Math.random() - 0.5) * 0.1;
+      }
     }
   }
 
@@ -401,6 +427,9 @@ export class GameEngine {
     this.gameState.experienceToNext = Math.floor(this.gameState.experienceToNext * 1.5);
     this.gameState.isLevelingUp = true;
     
+    // Create level up effect
+    this.createLevelUpEffect();
+    
     // Generate random skills (placeholder)
     this.gameState.availableSkills = [
       { name: 'Attack Speed', description: 'Increase attack speed by 25%' },
@@ -410,92 +439,256 @@ export class GameEngine {
   }
 
   private createDeathParticles(x: number, y: number) {
+    // Rainbow death particles
+    const colors = ['#FF0080', '#FF8000', '#FFFF00', '#80FF00', '#00FF80', '#0080FF', '#8000FF'];
+    for (let i = 0; i < 15; i++) {
+      this.particles.push({
+        x: x,
+        y: y,
+        velocityX: (Math.random() - 0.5) * 12,
+        velocityY: (Math.random() - 0.5) * 12 - 3,
+        life: 1500,
+        maxLife: 1500,
+        alpha: 1,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        size: Math.random() * 4 + 2,
+        type: 'death',
+        rotation: Math.random() * Math.PI * 2,
+        rotationSpeed: (Math.random() - 0.5) * 0.2
+      });
+    }
+    
+    // Explosion effect
+    this.createExplosionEffect(x, y);
+  }
+
+  private createHitParticles(x: number, y: number) {
+    // Enhanced hit particles with multiple colors
+    const hitColors = ['#FFD700', '#FF6B6B', '#4ECDC4', '#45B7D1'];
     for (let i = 0; i < 8; i++) {
       this.particles.push({
         x: x,
         y: y,
         velocityX: (Math.random() - 0.5) * 8,
         velocityY: (Math.random() - 0.5) * 8 - 2,
+        life: 800,
+        maxLife: 800,
+        alpha: 1,
+        color: hitColors[Math.floor(Math.random() * hitColors.length)],
+        size: Math.random() * 3 + 1,
+        type: 'hit',
+        rotation: 0,
+        rotationSpeed: 0
+      });
+    }
+    
+    // Screen shake effect
+    this.createScreenShake(3);
+  }
+
+  private createExplosionEffect(x: number, y: number) {
+    // Create expanding ring effect
+    for (let i = 0; i < 20; i++) {
+      const angle = (i / 20) * Math.PI * 2;
+      this.particles.push({
+        x: x,
+        y: y,
+        velocityX: Math.cos(angle) * 6,
+        velocityY: Math.sin(angle) * 6,
         life: 1000,
         maxLife: 1000,
         alpha: 1,
-        color: '#06D6A0',
-        size: 3
+        color: '#FF4500',
+        size: 4,
+        type: 'explosion',
+        rotation: 0,
+        rotationSpeed: 0
       });
     }
   }
 
-  private createHitParticles(x: number, y: number) {
-    for (let i = 0; i < 4; i++) {
+  private createScreenShake(intensity: number) {
+    // Add screen shake effect
+    this.screenShake = intensity;
+    this.screenShakeTimer = 200;
+  }
+
+  private createLevelUpEffect() {
+    // Create level up particles
+    const centerX = this.canvas.width / 2;
+    const centerY = this.canvas.height / 2;
+    
+    for (let i = 0; i < 30; i++) {
+      const angle = (i / 30) * Math.PI * 2;
+      const distance = 100 + Math.random() * 50;
       this.particles.push({
-        x: x,
-        y: y,
-        velocityX: (Math.random() - 0.5) * 4,
-        velocityY: (Math.random() - 0.5) * 4 - 1,
-        life: 500,
-        maxLife: 500,
+        x: centerX + Math.cos(angle) * distance,
+        y: centerY + Math.sin(angle) * distance,
+        velocityX: -Math.cos(angle) * 3,
+        velocityY: -Math.sin(angle) * 3,
+        life: 2000,
+        maxLife: 2000,
         alpha: 1,
-        color: '#F59E0B',
-        size: 2
+        color: '#00FFFF',
+        size: Math.random() * 5 + 3,
+        type: 'levelup',
+        rotation: 0,
+        rotationSpeed: 0.1
       });
+    }
+  }
+
+  private updateScreenShake(deltaTime: number) {
+    if (this.screenShakeTimer > 0) {
+      this.screenShakeTimer -= deltaTime;
+      this.screenShakeOffsetX = (Math.random() - 0.5) * this.screenShake;
+      this.screenShakeOffsetY = (Math.random() - 0.5) * this.screenShake;
+      
+      if (this.screenShakeTimer <= 0) {
+        this.screenShake = 0;
+        this.screenShakeOffsetX = 0;
+        this.screenShakeOffsetY = 0;
+      }
     }
   }
 
   private render() {
-    // Clear canvas
-    this.ctx.fillStyle = '#1a1a2e';
+    // Apply screen shake
+    this.ctx.save();
+    this.ctx.translate(this.screenShakeOffsetX, this.screenShakeOffsetY);
+    
+    // Clear canvas with animated background
+    const time = Date.now() * 0.001;
+    const gradient = this.ctx.createLinearGradient(0, 0, this.canvas.width, this.canvas.height);
+    gradient.addColorStop(0, `hsl(${240 + Math.sin(time * 0.5) * 20}, 70%, 15%)`);
+    gradient.addColorStop(1, `hsl(${280 + Math.cos(time * 0.3) * 30}, 80%, 20%)`);
+    this.ctx.fillStyle = gradient;
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-    // Render platforms
+    // Render platforms with enhanced glow
     for (const platform of this.platforms) {
+      // Platform glow
+      this.ctx.shadowColor = platform.color;
+      this.ctx.shadowBlur = 20;
       this.ctx.fillStyle = platform.color;
       this.ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
       
-      // Add glow effect
-      this.ctx.shadowColor = platform.color;
-      this.ctx.shadowBlur = 10;
-      this.ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+      // Platform highlight
       this.ctx.shadowBlur = 0;
+      this.ctx.fillStyle = this.lightenColor(platform.color, 0.3);
+      this.ctx.fillRect(platform.x + 2, platform.y + 2, platform.width - 4, platform.height - 4);
     }
 
-    // Render player
-    this.ctx.fillStyle = this.player.color;
+    // Render player with pulsing effect
+    const playerPulse = 1 + Math.sin(time * 8) * 0.1;
     this.ctx.shadowColor = this.player.color;
-    this.ctx.shadowBlur = 15;
-    this.ctx.fillRect(this.player.x, this.player.y, this.player.width, this.player.height);
+    this.ctx.shadowBlur = 25;
+    this.ctx.fillStyle = this.player.color;
+    this.ctx.fillRect(
+      this.player.x - (this.player.width * (playerPulse - 1)) / 2,
+      this.player.y - (this.player.height * (playerPulse - 1)) / 2,
+      this.player.width * playerPulse,
+      this.player.height * playerPulse
+    );
     this.ctx.shadowBlur = 0;
 
-    // Render enemies
+    // Render enemies with enhanced effects
     for (const enemy of this.enemies) {
-      this.ctx.fillStyle = enemy.color;
+      // Enemy glow
       this.ctx.shadowColor = enemy.color;
-      this.ctx.shadowBlur = 8;
+      this.ctx.shadowBlur = 15;
+      this.ctx.fillStyle = enemy.color;
       this.ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
       this.ctx.shadowBlur = 0;
 
-      // Health bar
+      // Enhanced health bar
       const healthPercent = enemy.health / enemy.maxHealth;
-      this.ctx.fillStyle = 'rgba(255, 0, 0, 0.8)';
-      this.ctx.fillRect(enemy.x, enemy.y - 8, enemy.width, 4);
+      this.ctx.fillStyle = 'rgba(255, 0, 0, 0.9)';
+      this.ctx.fillRect(enemy.x - 2, enemy.y - 12, enemy.width + 4, 6);
       this.ctx.fillStyle = '#00ff00';
-      this.ctx.fillRect(enemy.x, enemy.y - 8, enemy.width * healthPercent, 4);
+      this.ctx.fillRect(enemy.x, enemy.y - 10, enemy.width * healthPercent, 2);
     }
 
-    // Render projectiles
+    // Render projectiles with trail effect
     for (const projectile of this.projectiles) {
-      this.ctx.fillStyle = projectile.color;
+      // Projectile trail
       this.ctx.shadowColor = projectile.color;
-      this.ctx.shadowBlur = 5;
+      this.ctx.shadowBlur = 8;
+      this.ctx.fillStyle = projectile.color;
       this.ctx.fillRect(projectile.x, projectile.y, projectile.width, projectile.height);
+      
+      // Trail particles
+      for (let i = 1; i <= 3; i++) {
+        this.ctx.globalAlpha = 0.3 / i;
+        this.ctx.fillStyle = projectile.color;
+        this.ctx.fillRect(
+          projectile.x - projectile.velocityX * i * 0.1,
+          projectile.y - projectile.velocityY * i * 0.1,
+          projectile.width * 0.8,
+          projectile.height * 0.8
+        );
+      }
+      this.ctx.globalAlpha = 1;
       this.ctx.shadowBlur = 0;
     }
 
-    // Render particles
+    // Render enhanced particles
     for (const particle of this.particles) {
       this.ctx.globalAlpha = particle.alpha;
-      this.ctx.fillStyle = particle.color;
-      this.ctx.fillRect(particle.x, particle.y, particle.size, particle.size);
+      this.ctx.save();
+      this.ctx.translate(particle.x + particle.size / 2, particle.y + particle.size / 2);
+      this.ctx.rotate(particle.rotation);
+      
+      if (particle.type === 'death') {
+        // Rainbow death particles
+        this.ctx.fillStyle = particle.color;
+        this.ctx.shadowColor = particle.color;
+        this.ctx.shadowBlur = 10;
+        this.ctx.fillRect(-particle.size / 2, -particle.size / 2, particle.size, particle.size);
+      } else if (particle.type === 'levelup') {
+        // Level up star particles
+        this.ctx.fillStyle = particle.color;
+        this.ctx.shadowColor = particle.color;
+        this.ctx.shadowBlur = 15;
+        this.drawStar(-particle.size / 2, -particle.size / 2, particle.size);
+      } else {
+        // Regular particles
+        this.ctx.fillStyle = particle.color;
+        this.ctx.fillRect(-particle.size / 2, -particle.size / 2, particle.size, particle.size);
+      }
+      
+      this.ctx.shadowBlur = 0;
+      this.ctx.restore();
+      
+      // Update particle rotation
+      particle.rotation += particle.rotationSpeed;
     }
+    
     this.ctx.globalAlpha = 1;
+    this.ctx.restore();
+  }
+
+  private lightenColor(color: string, amount: number): string {
+    const num = parseInt(color.replace('#', ''), 16);
+    const amt = Math.round(2.55 * amount * 100);
+    const R = (num >> 16) + amt;
+    const G = (num >> 8 & 0x00FF) + amt;
+    const B = (num & 0x0000FF) + amt;
+    return '#' + (0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
+      (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 +
+      (B < 255 ? B < 1 ? 0 : B : 255)).toString(16).slice(1);
+  }
+
+  private drawStar(x: number, y: number, size: number) {
+    this.ctx.beginPath();
+    for (let i = 0; i < 5; i++) {
+      const angle = (i * 4 * Math.PI) / 5;
+      const px = x + Math.cos(angle) * size;
+      const py = y + Math.sin(angle) * size;
+      if (i === 0) this.ctx.moveTo(px, py);
+      else this.ctx.lineTo(px, py);
+    }
+    this.ctx.closePath();
+    this.ctx.fill();
   }
 }
